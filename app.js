@@ -225,6 +225,7 @@ router.route('/products/create')
     product.discount = req.body.discount || '0',
     product.userId=req.body.userId || '0',
     product.userEmail=req.body.userEmail || '0'
+    product.photoUrl=""
     product.save(function(err)
     {
         if (err)
@@ -351,6 +352,7 @@ router.route('/changeDiscount')
 router.route('/placeOrder')
 .post(function(req, res)
 {
+    console.log(req.body);
     var items = Object.keys(req.body.items);
     Product.find({ _id: { $in: items } }, function (err, result)
     {
