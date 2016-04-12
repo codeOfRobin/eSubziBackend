@@ -2,7 +2,6 @@ var request = require('request')
 var Device = require('../models/device');
 function sendPushes(pushMessage,regArr)
 {
-
 	console.log(regArr.length+" len");
 	console.log(regArr[0]);
 	for(var x=0;x<regArr.length;x++){

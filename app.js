@@ -130,7 +130,7 @@ router.post('/signup', function(req, res, next)
     })(req, res, next);
 });
 
-//
+
 // router.use(function(req, res, next)
 // {
 //     var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -282,6 +282,23 @@ router.route('/discounts/get')
     });
 })
 
+router.route('/setSubscriptions')
+.post(function(req,res)
+{
+    Device.findOne({ _id: req.body.id }, function(err, device)
+    {
+        device.subscribedIDs = req.body.subscribedIDs
+        device.save(function(err)
+        {
+            if (err)
+            {
+                res.send(err);
+            }
+            res.json({ message: 'preferences set', updatedDevice: device});
+        });
+    })
+})
+
 router.route('/discounts/create')
 .post(function(req,res)
 {
@@ -289,13 +306,14 @@ router.route('/discounts/create')
     discount.shopKeeperId = req.body.shopKeeperId
     discount.discountDescription = req.body.discountDescription
     var regArr =[];
-    Device.find({},function(err,devices){
+    Device.find({},function(err,devices)
+    {
         console.log(devices.length);
-        for(var y=0;y<devices.length;y++){
-            if(devices[y].deviceType=="Android"){
+        for(var y=0;y<devices.length;y++)
+        {
+            if(devices[y].deviceType=="Android" && devices[y].subscribedIDs.indexOf(discount.shopKeeperId)!=-1)
+            {
                 regArr.push(devices[y].token);
-                console.log(devices[y].token);
-                console.log(regArr.length+" : length");
             }
         }
     });
@@ -327,7 +345,7 @@ router.route('/changeDiscount')
             var regArr =[];
             Device.find({},function(err,devices){
                 for(var y=0;y<devices.length;y++){
-                    if(devices[y].deviceType=="Android"){
+                    if(devices[y].deviceType=="Android" && devices[y].subscribedIDs.indexOf(discount.shopKeeperId)!=-1){
                         regArr.push(devices[y].token);
                     }
                 }

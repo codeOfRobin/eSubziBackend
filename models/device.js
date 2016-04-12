@@ -10,7 +10,8 @@ var deviceSchema = new Schema
 ({
     token: String,
     deviceType: { type: String, enum: enumObject },
-    email: String
+    email: String,
+    subscribedIDs: [String]
 });
 
 var Device = mongoose.model('Device', deviceSchema);
