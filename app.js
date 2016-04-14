@@ -84,6 +84,8 @@ passport.use('localSignup',new LocalStrategy(
                 newUser.email = email
                 newUser.password = newUser.generateHash(password)
                 newUser.userType = req.body.userType
+                newUser.address=req.body.address
+                newUser.phoneNumber=req.body.phoneNumber
                 newUser.save(function(err)
                 {
                     if(err)
@@ -459,12 +461,28 @@ router.route('/findOrdersNotDelivered')
             }
             else
             {
-                res.json({ message:'orders found',Orders : orders});
-                orders.sort(function(a, b) {
-                    return a.created_at > b.created_at
-                })
-                var firstOrder = orders[0]
-
+                var orderUserIds=[]
+                for(var o=0;o<orders.length;o++){
+                    orderUserIds.push(orders[o].shopKeeperId);
+                }
+                var userNumber=[];
+                var userAddress=[];
+                    User.find({ _id:{ $in :orderUserIds}},function(err, users){
+                        if(!users){
+                            console.log('not found');
+                                res.json({ message:'orders found', Orders : orders});
+                        }else{
+                            for(var j=0; j<orderUserIds.length; j++){
+                                for(var i=0 ; i<users.length;i++){
+                                    if(orderUserIds[j]==users[i]._id){
+                                        userNumber.push(users[i].phoneNumber);
+                                        userAddress.push(users[i].address);
+                                    }
+                                }
+                            }
+                                res.json({ message:'orders found', Orders : orders, UserNumber:userNumber,UserAddress:userAddress});
+                        }
+                    });
             }
         });
     }else if (type==='Shopkeeper'){
@@ -472,7 +490,28 @@ router.route('/findOrdersNotDelivered')
             if(!orders){
                 res.json({ message: 'orders invalid for this user' });
             }else{
-                res.json({ message:'orders found', Orders : orders});
+                var orderUserIds=[]
+                for(var o=0;o<orders.length;o++){
+                    orderUserIds.push(orders[o].customerId);
+                }
+                var userNumber=[];
+                var userAddress=[];
+                    User.find({ _id:{ $in :orderUserIds}},function(err, users){
+                        if(!users){
+                            console.log('not found');
+                                res.json({ message:'orders found', Orders : orders});
+                        }else{
+                            for(var j=0; j<orderUserIds.length; j++){
+                                for(var i=0 ; i<users.length;i++){
+                                    if(orderUserIds[j]==users[i]._id){
+                                        userNumber.push(users[i].phoneNumber);
+                                        userAddress.push(users[i].address);
+                                    }
+                                }
+                            }
+                                res.json({ message:'orders found', Orders : orders, UserNumber:userNumber,UserAddress:userAddress});
+                        }
+                    });
             }
         });
     }
@@ -488,9 +527,12 @@ router.get('/productPicturesUpload', function(req, res){
 
 router.post('/profile', upload.single('image'), function (req, res, next)
 {
-    var productId=req.body.productId || req.body.title;
+    console.log(req.body);
+    console.log('file:'+req.file);
+    var productId=req.body.productId || 'default';
     tmp_path = req.file.path;
     originalName=req.file.originalname;
+    console.log(originalName);
     target_path =  req.file.path +'.' + getExtension(originalName);
     fs.rename(tmp_path, target_path, function(err) {
         if (err)
@@ -506,14 +548,14 @@ router.post('/profile', upload.single('image'), function (req, res, next)
                 {
                     res.json({error:'not found'});
                 }else{
-                    product.photoUrl = 'http://128.199.152.41:3000/' + path.basename(target_path);
+                    product.photoUrl = 'http://192.168.43.200:3000/' + path.basename(target_path);
                     product.save(function(err)
                     {
                         if (err)
                         {
                             res.send(err);
                         }
-                        res.json({ message: 'product photoUrl Updated' ,photoUrl : product.photoUrl});
+                        res.json({ message: 'product photoUrl Updated', photoUrl : product.photoUrl});
                     });
                 }
             });

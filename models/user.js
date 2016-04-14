@@ -9,6 +9,8 @@ var userSchema =new Schema({
     email: String,
     password: String,
     userType: { type: String, enum: enumObject },
+    phoneNumber:String,
+    address:String,
     admin: Boolean
 })
 
