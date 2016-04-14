@@ -347,7 +347,7 @@ router.route('/changeDiscount')
             var regArr =[];
             Device.find({},function(err,devices){
                 for(var y=0;y<devices.length;y++){
-                    if(devices[y].deviceType=="Android" && devices[y].subscribedIDs.indexOf(discount.shopKeeperId)!=-1){
+                    if(devices[y].deviceType=="Android" && devices[y].subscribedIDs.indexOf(product.userId)!=-1){
                         regArr.push(devices[y].token);
                     }
                 }
