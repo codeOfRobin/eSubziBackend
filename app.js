@@ -166,6 +166,7 @@ router.route('/register')
     device.deviceType=req.body.type;
     device.email=req.body.email;
     device.token=req.body.regId;
+    device.subscribedIDs=[];
     Device.find({token:req.body.regId},function(err, devices)
     {
         if (err)
@@ -238,7 +239,7 @@ router.route('/products/create')
     });
 });
 
-router.route('/update_price')
+router.route('/updatePrice')
 .post(function(req, res)
 {
     if (req.body.price == 0)
@@ -283,23 +284,46 @@ router.route('/discounts/get')
         res.json({Discounts:discounts});
     });
 })
+router.route('/getSubscriptions')
+.post(function(req,res)
+{
 
+    Device.findOne({ _id: req.body.id }, function(err, device)
+    {
+        if(!device){
+            console.log('not found');
+            res.json({ message: 'not found'});
+        }else{
+
+            res.json({ message: 'found', SubscribedIds: device.subscribedIDs});
+
+        }
+    });
+});
 router.route('/setSubscriptions')
 .post(function(req,res)
 {
+    console.log(req.body.subscribedIDs);
     Device.findOne({ _id: req.body.id }, function(err, device)
     {
-        device.subscribedIDs = req.body.subscribedIDs
-        device.save(function(err)
-        {
-            if (err)
+        if(!device){
+            console.log('not found');
+            res.json({ message: 'not set'});
+        }else{
+            console.log(device._id);
+            device.subscribedIDs = req.body.subscribedIDs;
+            device.save(function(err)
             {
-                res.send(err);
-            }
-            res.json({ message: 'preferences set', updatedDevice: device});
-        });
-    })
-})
+                if (err)
+                {
+                    res.send(err);
+                }
+                res.json({ message: 'preferences set', updatedDevice: device});
+            });
+        }
+    });
+
+});
 
 router.route('/discounts/create')
 .post(function(req,res)
@@ -337,6 +361,7 @@ router.route('/discounts/create')
 router.route('/changeDiscount')
 .post(function(req, res)
 {
+    console.log(req.body);
     Product.findOne({ _id: req.body.id }, function(err, product)
     {
         if(!product){
@@ -345,12 +370,19 @@ router.route('/changeDiscount')
         }else{
             product.discount=req.body.discount || '0';
             var regArr =[];
-            Device.find({},function(err,devices){
+
+            Device.find({},function(error,devices){
+                console.log(devices.length+'rajat');
+                if(error){
+                    res.send(error)
+                }
+
                 for(var y=0;y<devices.length;y++){
-                    if(devices[y].deviceType=="Android" && devices[y].subscribedIDs.indexOf(product.userId)!=-1){
+                    if(devices[y].deviceType=="Android" ){
                         regArr.push(devices[y].token);
                     }
                 }
+
             });
             product.save(function(err)
             {
@@ -548,7 +580,8 @@ router.post('/profile', upload.single('image'), function (req, res, next)
                 {
                     res.json({error:'not found'});
                 }else{
-                    product.photoUrl = 'http://192.168.43.200:3000/' + path.basename(target_path);
+                    product.photoUrl = 'http://128.199.152.41:3000/' + path.basename(target_path);
+                    console.log(product.photoUrl);
                     product.save(function(err)
                     {
                         if (err)
