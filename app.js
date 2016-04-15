@@ -337,7 +337,7 @@ router.route('/discounts/create')
         console.log(devices.length);
         for(var y=0;y<devices.length;y++)
         {
-            if(devices[y].deviceType=="Android" && devices[y].subscribedIDs.indexOf(discount.shopKeeperId)!=-1)
+            if(devices[y].deviceType=="Android")// && devices[y].subscribedIDs.indexOf(discount.shopKeeperId)!=-1)
             {
                 regArr.push(devices[y].token);
             }
