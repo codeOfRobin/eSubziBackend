@@ -342,20 +342,21 @@ router.route('/discounts/create')
                 regArr.push(devices[y].token);
             }
         }
-    });
-    discount.save(function(err)
-    {
-        if (err)
+        discount.save(function(err)
         {
-            res.send(err);
-        }
+            if (err)
+            {
+                res.send(err);
+            }
 
-        async.series([
-            async.asyncify(pushiPhone.sendPushes(discount.discountDescription)),
-            async.asyncify(pushAndroid.sendPushes(discount.discountDescription,regArr))
-        ]);
-        res.json({ message: 'discount added!', newDiscount: discount});
+            async.series([
+                async.asyncify(pushiPhone.sendPushes(discount.discountDescription)),
+                async.asyncify(pushAndroid.sendPushes(discount.discountDescription,regArr))
+            ]);
+            res.json({ message: 'discount added!', newDiscount: discount});
+        });
     });
+
 })
 
 router.route('/changeDiscount')
@@ -382,21 +383,22 @@ router.route('/changeDiscount')
                         regArr.push(devices[y].token);
                     }
                 }
-
-            });
-            product.save(function(err)
-            {
-                if (err)
+                product.save(function(err)
                 {
-                    res.send(err);
-                }
+                    if (err)
+                    {
+                        res.send(err);
+                    }
 
-                async.series([
-                    async.asyncify(pushiPhone.sendPushes("Discount changed to " + product.discount)),
-                    async.asyncify(pushAndroid.sendPushes("Discount changed to " + product.discount,regArr))
-                ]);
-                res.json({ message: 'Discount value changed!', newProduct : product});
+                    async.series([
+                        async.asyncify(pushiPhone.sendPushes("Discount changed to " + product.discount)),
+                        async.asyncify(pushAndroid.sendPushes("Discount changed to " + product.discount,regArr))
+                    ]);
+                    res.json({ message: 'Discount value changed!', newProduct : product});
+                });
+
             });
+
         }
     });
 });
