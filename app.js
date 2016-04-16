@@ -606,7 +606,7 @@ router.post('/profile', upload.single('image'), function (req, res, next)
         fs.unlink(tmp_path, function() {
             if (err)
             throw err;
-            //
+            
             Product.findOne({_id:productId},function(err, product)
             {
                 if (!product)
