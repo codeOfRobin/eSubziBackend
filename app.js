@@ -422,8 +422,8 @@ router.route('/changeDiscount')
                     }
 
                     async.series([
-                        async.asyncify(pushiPhone.sendPushes("Discount changed to " + product.discount)),
-                        async.asyncify(pushAndroid.sendPushes("Discount changed to " + product.discount,regArr))
+                        async.asyncify(pushiPhone.sendPushes("Discount on "+product.description+" changed to " + product.discount)),
+                        async.asyncify(pushAndroid.sendPushes("Discount on "+product.description+" changed to " + product.discount,regArr))
                     ]);
                     res.json({ message: 'Discount value changed!', newProduct : product});
                 });
@@ -461,14 +461,53 @@ router.route('/placeOrder')
                 return {product:orderProduct , orderQuantity:req.body.items[orderProduct._id]};
             })
             console.log(order.items)
-            order.save(function(err)
-            {
-                if (err)
-                {
-                    res.send(err);
+            //
+            var regArr =[];
+            User.findOne({_id:order.shopKeeperId},function(err, user){
+                if(err){
+                    res.send(err)
                 }
-                res.json({ message: 'order Recieved' ,newOrder : order});
+                Device.findOne({email:user.email},function(error,device){
+                    //console.log(device.email+'rajat');
+                    if(error){
+                        res.send(error)
+                    }
+                    if(!device){
+                        order.save(function(err)
+                        {
+                            if (err)
+                            {
+                                res.send(err);
+                            }
+                            
+                            res.json({ message: 'order Recieved' ,newOrder : order});
+                        });
+                    }else{
+                        if(device.deviceType=="Android"){
+                            regArr.push(device.token);
+                        }
+                    //}
+                    order.save(function(err)
+                    {
+                        if (err)
+                        {
+                            res.send(err);
+                        }
+                        async.series([
+                            //async.asyncify(pushiPhone.sendPushes("Discount changed to " + product.discount)),
+                            async.asyncify(pushAndroid.sendPushes("Order placed by " + order.customerEmail,regArr))
+                        ]);
+                        res.json({ message: 'order Recieved' ,newOrder : order});
+                    });
+                    }
+                    //for(var y=0;y<devices.length;y++){
+
+
+                });
             });
+
+            //
+
         }
 
     });
@@ -606,7 +645,7 @@ router.post('/profile', upload.single('image'), function (req, res, next)
         fs.unlink(tmp_path, function() {
             if (err)
             throw err;
-            
+
             Product.findOne({_id:productId},function(err, product)
             {
                 if (!product)
