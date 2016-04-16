@@ -167,13 +167,13 @@ router.route('/register')
     device.email=req.body.email;
     device.token=req.body.regId;
     device.subscribedIDs=[];
-    Device.find({token:req.body.regId},function(err, devices)
+    Device.findOne({token:req.body.regId},function(err, deviceN)
     {
         if (err)
         {
             res.send(err)
         }
-        if(devices.length==0)
+        if(!deviceN)
         {
             device.save(function(err)
             {
@@ -185,11 +185,31 @@ router.route('/register')
                 res.json({ message: 'New Device registered', Device: device});
             });
         }else{
-            res.json({message:'Already Registered' , Device: device});
+            res.json({message:'Already Registered' , Device: deviceN});
         }
 
     });
 });
+router.route('/unregister')
+.post(function(req, res){
+    Device.findOne({_id:req.body.id},function(err, device)
+    {
+        if (err)
+        {
+            res.send(err)
+        }
+        if(!device){
+            res.json({message:'User not deleted'});
+        }else{
+            device.remove(function(err) {
+                if (err) throw err;
+                console.log('User successfully deleted');
+                res.json({message:'User successfully deleted'});
+            });
+        }
+    });
+});
+
 
 router.route('/products/find')
 .post(function(req, res)
@@ -288,14 +308,25 @@ router.route('/getSubscriptions')
 .post(function(req,res)
 {
 
-    Device.findOne({ _id: req.body.id }, function(err, device)
+    Device.findOne({_id:req.body.deviceId}, function(err, device)
     {
         if(!device){
             console.log('not found');
             res.json({ message: 'not found'});
         }else{
+            User.find({ userType: 'Shopkeeper' }, function(err, users)
+            {
+                if(!users){
+                    console.log('not found users');
+                    res.json({ message: 'not shopkeeper found'});
+                }else{
+                    console.log(device.subscribedIDs+':len'+device.id)
+                    //console.log(device.length+'rajat'+device[0]._id);
+                    res.json({ message: 'found', SubscribedIds: device.subscribedIDs, Users:users});
 
-            res.json({ message: 'found', SubscribedIds: device.subscribedIDs});
+                }
+            });
+            //res.json({ message: 'found', SubscribedIds: device.subscribedIDs});
 
         }
     });
@@ -337,7 +368,7 @@ router.route('/discounts/create')
         console.log(devices.length);
         for(var y=0;y<devices.length;y++)
         {
-            if(devices[y].deviceType=="Android")// && devices[y].subscribedIDs.indexOf(discount.shopKeeperId)!=-1)
+            if(devices[y].deviceType=="Android" && devices[y].subscribedIDs.indexOf(discount.shopKeeperId)!=-1)
             {
                 regArr.push(devices[y].token);
             }
@@ -379,7 +410,7 @@ router.route('/changeDiscount')
                 }
 
                 for(var y=0;y<devices.length;y++){
-                    if(devices[y].deviceType=="Android" ){
+                    if(devices[y].deviceType=="Android" && devices[y].subscribedIDs.indexOf(product.userId)!=-1){
                         regArr.push(devices[y].token);
                     }
                 }
