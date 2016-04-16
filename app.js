@@ -214,7 +214,7 @@ router.route('/unregister')
 router.route('/products/find')
 .post(function(req, res)
 {
-    Product.find({userId:req.body.userId},function(err, products)
+    Product.find({userId:req.body.userId},null, {sort: '-created_at'},function(err, products)
     {
         if (err)
         {
@@ -227,7 +227,7 @@ router.route('/products/find')
 router.route('/products/get')
 .get(function(req, res)
 {
-    Product.find(function(err, products)
+    Product.find({},null, {sort: '-created_at'},function(err, products)
     {
         if (err)
         {
@@ -498,7 +498,7 @@ router.route('/findOrders')
 .post(function(req, res){
     var type =req.body.usertype;
     if(type==='Customer'){
-        Order.find({'customerId':req.body.userId },function(err, orders){
+        Order.find({'customerId':req.body.userId },null, {sort: '-created_at'},function(err, orders){
             if(!orders){
                 res.json({ message: 'orders invalid for this user' });
             }else{
@@ -506,7 +506,7 @@ router.route('/findOrders')
             }
         });
     }else if (type==='Shopkeeper'){
-        Order.find({'shopKeeperId':req.body.userId },function(err, orders){
+        Order.find({'shopKeeperId':req.body.userId },null, {sort: '-created_at'},function(err, orders){
             if(!orders){
                 res.json({ message: 'orders invalid for this user' });
             }else{
@@ -520,7 +520,7 @@ router.route('/findOrdersNotDelivered')
     var orderStatusArray =['OrderReceived','OrderBeingProcessed','Delivering'];
     var type =req.body.usertype;
     if(type==='Customer'){
-        Order.find({'customerId':req.body.userId ,currentState:{ $in : orderStatusArray }},function(err, orders){
+        Order.find({'customerId':req.body.userId ,currentState:{ $in : orderStatusArray }},null, {sort: '-created_at'},function(err, orders){
             if(!orders){
                 res.json({ message: 'orders invalid for this user' });
             }
@@ -551,7 +551,7 @@ router.route('/findOrdersNotDelivered')
             }
         });
     }else if (type==='Shopkeeper'){
-        Order.find({'shopKeeperId':req.body.userId,currentState:{ $in : orderStatusArray } },function(err, orders){
+        Order.find({'shopKeeperId':req.body.userId,currentState:{ $in : orderStatusArray } },null, {sort: '-created_at'},function(err, orders){
             if(!orders){
                 res.json({ message: 'orders invalid for this user' });
             }else{
