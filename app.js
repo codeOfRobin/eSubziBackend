@@ -236,7 +236,28 @@ router.route('/products/get')
         res.json(products);
     });
 })
+router.route('/product/delete')
+.post(function(req, res)
+{
+    Product.findOne({_id:req.body.id},function(err, product)
+    {
+        if (err)
+        {
+            res.send(err)
+        }
+        if(!product){
+            res.json({message:'product not found'});
+        }else{
+            product.remove(function(err){
+                if (err){
+                    res.json({message:'error'});
+                }
+                res.json({message:'product removed'});
+            });
+        }
 
+    });
+})
 
 router.route('/products/create')
 .post(function(req,res)
@@ -479,7 +500,7 @@ router.route('/placeOrder')
                             {
                                 res.send(err);
                             }
-                            
+
                             res.json({ message: 'order Recieved' ,newOrder : order});
                         });
                     }else{
