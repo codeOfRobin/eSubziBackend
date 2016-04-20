@@ -315,7 +315,68 @@ router.route('/updatePrice')
         });
     }
 });
-
+router.route('/updateQuantity')
+.post(function(req, res)
+{
+    if (req.body.quantity == 0)
+    {
+        res.send({message : "Quantity can't be 0"})
+    }
+    else
+    {
+        Product.findOne({ _id: req.body.id }, function(err, product)
+        {
+            if(!product)
+            {
+                console.log("not found");
+                res.json({ message: 'Not found'});
+            }
+            else
+            {
+                product.quantity = req.body.quantity;
+                product.save(function(err)
+                {
+                    if (err)
+                    {
+                        res.send(err);
+                    }
+                    res.json({ message: 'Product quantity updated!' ,newProduct:product});
+                });
+            }
+        });
+    }
+});
+router.route('/updateName')
+.post(function(req, res)
+{
+    if (req.body.description == '')
+    {
+        res.send({message : "Description can't be empty"})
+    }
+    else
+    {
+        Product.findOne({ _id: req.body.id }, function(err, product)
+        {
+            if(!product)
+            {
+                console.log("not found");
+                res.json({ message: 'Not found'});
+            }
+            else
+            {
+                product.description = req.body.description;
+                product.save(function(err)
+                {
+                    if (err)
+                    {
+                        res.send(err);
+                    }
+                    res.json({ message: 'Product description updated!' ,newProduct:product});
+                });
+            }
+        });
+    }
+});
 
 router.route('/discounts/get')
 .get(function(req,res)
