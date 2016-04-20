@@ -124,6 +124,10 @@ router.post('/signup', function(req, res, next)
 {
     passport.authenticate('localSignup', function(err, user, info) {
         if (err) { return next(err) }
+        if(!user){
+            console.log(info.message);
+            return res.json({ error: info.message });
+        }
         var token = jwt.sign(user, app.get(secret), {
             expiresIn: 24*60*60 // expires in 24 hours
         });
@@ -441,10 +445,10 @@ router.route('/changeDiscount')
                     {
                         res.send(err);
                     }
-
+                        console.log("Discount on "+product.description+" at "+product.userEmail+" changed to " + product.discount);
                     async.series([
-                        async.asyncify(pushiPhone.sendPushes("Discount on "+product.description+" changed to " + product.discount)),
-                        async.asyncify(pushAndroid.sendPushes("Discount on "+product.description+" changed to " + product.discount,regArr))
+                        async.asyncify(pushiPhone.sendPushes("Discount on "+product.description+" at "+product.userEmail+" changed to " + product.discount)),
+                        async.asyncify(pushAndroid.sendPushes("Discount on "+product.description+" at "+product.userEmail+" changed to " + product.discount,regArr))
                     ]);
                     res.json({ message: 'Discount value changed!', newProduct : product});
                 });
