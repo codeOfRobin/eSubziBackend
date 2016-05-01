@@ -12,6 +12,7 @@ var productSchema = new Schema
 	userEmail:String,
 	description: String,
 	discount: Number,
+	deliverable: Boolean,
     created_at: Date,
     updated_at: Date
 });
