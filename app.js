@@ -715,7 +715,7 @@ router.post('/profile', upload.single('image'), function (req, res, next)
                 {
                     res.json({error:'not found'});
                 }else{
-                    product.photoUrl = 'http://192.168.43.200:3000/' + path.basename(target_path);//128.199.152.41
+                    product.photoUrl = 'http://128.199.152.41:3000/' + path.basename(target_path);//128.199.152.41
                     console.log(product.photoUrl);
                     product.save(function(err)
                     {
