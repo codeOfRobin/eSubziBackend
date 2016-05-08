@@ -444,7 +444,7 @@ router.route('/discounts/create')
     var regArr =[];
     Device.find({},function(err,devices)
     {
-        console.log(devices.length);
+        // console.log(devices.length);
         for(var y=0;y<devices.length;y++)
         {
             if(devices[y].deviceType=="Android" && devices[y].subscribedIDs.indexOf(discount.shopKeeperId)!=-1)
@@ -470,7 +470,6 @@ router.route('/discounts/create')
 router.route('/changeDiscount')
 .post(function(req, res)
 {
-    console.log(req.body);
     Product.findOne({ _id: req.body.id }, function(err, product)
     {
         if(!product){
@@ -480,7 +479,6 @@ router.route('/changeDiscount')
             product.discount=req.body.discount || '0';
             var regArr =[];
             Device.find({},function(error,devices){
-                console.log(devices.length+'rajat');
                 if(error){
                     res.send(error)
                 }
@@ -510,7 +508,6 @@ router.route('/changeDiscount')
 router.route('/placeOrder')
 .post(function(req, res)
 {
-    console.log(req.body);
     var items = Object.keys(req.body.items);
     Product.find({ _id: { $in: items } }, function (err, result)
     {
@@ -533,7 +530,6 @@ router.route('/placeOrder')
             order.items = result.map(function(orderProduct){
                 return {product:orderProduct , orderQuantity:req.body.items[orderProduct._id]};
             })
-            console.log(order.items)
             var regArr =[];
             User.findOne({_id:order.shopKeeperId},function(err, user){
                 if(err){
@@ -694,7 +690,6 @@ router.get('/productPicturesUpload', function(req, res){
 
 router.post('/profile', upload.single('image'), function (req, res, next)
 {
-    console.log(req.body);
     console.log('file:'+req.file);
     var productId=req.body.productId || 'default';
     tmp_path = req.file.path;
